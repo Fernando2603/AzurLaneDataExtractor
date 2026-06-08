@@ -70,7 +70,7 @@ jobs:
         run: python main.py
 
       - name: Add & Commit AzurLaneData
-        uses: EndBug/add-and-commit@v1.0.0
+        uses: EndBug/add-and-commit@v10
         with:
           author_name: ${{ github.actor }}
           author_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
