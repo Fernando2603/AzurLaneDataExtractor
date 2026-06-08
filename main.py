@@ -25,5 +25,13 @@ def merge_gamecfg_buff() -> None:
   print(f"[WRITE]: {dst.as_posix()}")
 
 
+def update_version() -> None:
+  src = Path(__file__).parent / "target/version.txt"
+
+  if src.exists():
+    (BUILD / "version.txt").write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
+
+
 if __name__ == "__main__":
   merge_gamecfg_buff()
+  update_version()

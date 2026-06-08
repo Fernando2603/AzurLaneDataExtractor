@@ -1,10 +1,9 @@
 from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
-from pathlib import Path
 
+import requests
 from azlassets import config, protobuf, versioncontrol
 from azlassets.classes import Client
-import requests
 
 
 def get_version(clientconfig: config.ClientConfig) -> versioncontrol.VersionResult:
@@ -28,7 +27,9 @@ def get_version(clientconfig: config.ClientConfig) -> versioncontrol.VersionResu
 
 
 def get_previous_version() -> str:
-  response = requests.get("https://raw.githubusercontent.com/Fernando2603/AzurLaneData/main/version.txt")
+  response = requests.get(
+    "https://raw.githubusercontent.com/Fernando2603/AzurLaneData/main/version.txt"
+  )
 
   if response.status_code != 200:
     return ""

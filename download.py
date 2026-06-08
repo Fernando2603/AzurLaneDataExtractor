@@ -55,3 +55,5 @@ if __name__ == "__main__":
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(cast(bytes, response.content))
     print(f"Write -> {path.relative_to(dst.parent).as_posix()}")
+
+  (dst / "version.txt").write_text(version.version, encoding="utf-8")
