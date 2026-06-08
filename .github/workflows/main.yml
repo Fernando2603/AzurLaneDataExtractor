@@ -64,7 +64,7 @@ jobs:
         run: python sharecfg.py
 
       - name: Extract sharecfgdata
-        run: python.sharecfgdata.py
+        run: python sharecfgdata.py
 
       - name: Process Data
         run: python main.py
