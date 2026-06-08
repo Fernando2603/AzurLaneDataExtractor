@@ -1,6 +1,5 @@
 import hashlib
 import json
-import os
 import subprocess
 from pathlib import Path
 from typing import cast
@@ -13,11 +12,6 @@ from src.lua2json import lua2json, parse_buff
 UABDEC = "bin/uabdec.exe"
 BCDEC = "bin/bcdec.exe"
 LJDEC = "bin/ljdec.exe"
-
-if os.name != "nt":
-  UABDEC = "wine " + UABDEC
-  BCDEC = "wine " + BCDEC
-  LJDEC = "wine " + LJDEC
 
 
 def decompile_scripts32(src: Path, dst: Path) -> None:

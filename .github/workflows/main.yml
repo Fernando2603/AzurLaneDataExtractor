@@ -34,7 +34,7 @@ jobs:
           echo "skip=${values[1]}" >> "$GITHUB_OUTPUT"
 
   update:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: check
     if: ${{ needs.check.outputs.skip == 'false' }}
     steps:
@@ -56,11 +56,6 @@ jobs:
 
       - name: Install Python Dependencies
         run: pip install -r requirements.txt
-
-      - name: Setup Wine
-        run: |
-          sudo apt update && sudo dpkg --add-architecture i386
-          sudo apt-get update && sudo apt-get install -y wine32
 
       - name: Download Assets
         run: python download.py
