@@ -1,0 +1,81 @@
+name: Update
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 * * * *"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+      skip: ${{ steps.check.outputs.skip }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check
+        id: check
+        run: |
+          output=$(python ./check.py)
+          read -ra values <<< "$output"
+          echo "version=${values[0]}" >> "$GITHUB_OUTPUT"
+          echo "skip=${values[1]}" >> "$GITHUB_OUTPUT"
+
+  update:
+    runs-on: ubuntu-latest
+    needs: check
+    if: ${{ needs.check.outputs.skip == 'false' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Checkout AzurLaneData
+        uses: actions/checkout@v4
+        with:
+          repository: Fernando2603/AzurLaneData
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: build
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Setup Wine
+        run: |
+          sudo apt update && sudo dpkg --add-architecture i386
+          sudo apt-get update && sudo apt-get install -y wine32
+
+      - name: Download Assets
+        run: python download.py
+
+      - name: Extract sharecfg
+        run: python sharecfg.py
+
+      - name: Extract sharecfgdata
+        run: python.sharecfgdata.py
+
+      - name: Process Data
+        run: python main.py
+
+      - name: Add & Commit AzurLaneData
+        uses: Fernando2603/add-and-commit@v1.0.0
+        with:
+          author_name: ${{ github.actor }}
+          author_email: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+          message: ${{ needs.check.outputs.version }}
+          cwd: './build/'

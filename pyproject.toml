@@ -1,0 +1,49 @@
+[tool.pyright]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+
+reportDuplicateImport = "warning"
+reportImplicitStringConcatenation = "warning"
+reportUnboundVariable = "warning"
+reportUnusedClass = "information"
+reportUnusedFunction = "information"
+reportUnusedImport = "information"
+reportUnusedVariable = "information"
+reportUnknownMemberType = "information"
+reportUnknownVariableType = "information"
+reportUnknownArgumentType = "information"
+reportUnknownParameterType = "information"
+reportUnknownLambdaType = "information"
+reportUnknownTypeArguments = "information"
+reportGeneralTypeIssues = "information"
+reportInvalidCast = "warning"
+
+strictListInference = true
+strictDictionaryInference = true
+strictSetInference = true
+analyzeUnannotatedFunctions = true
+strictParameterNoneValue = true
+enableTypeIgnoreComments = true
+enableReachabilityAnalysis = true
+deprecateTypingAliases = true
+
+
+[tool.ruff]
+line-length = 100
+indent-width = 2
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+  "SIM",
+  "C4",
+  "RUF",
+]
+
+[tool.ruff.format]
+indent-style = "space"

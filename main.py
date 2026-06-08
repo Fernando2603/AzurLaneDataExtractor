@@ -1,0 +1,29 @@
+import json
+from pathlib import Path
+from typing import Any
+
+BUILD = Path(__file__).parent / "build"
+
+
+def merge_gamecfg_buff() -> None:
+  src = BUILD / "gamecfg/buff"
+  dst = BUILD / "buff.json"
+
+  if not src.exists():
+    return
+
+  result: dict[str, Any] = {}
+
+  for file in src.glob("*.json"):
+    if not file.stem.startswith("buff_"):
+      continue
+
+    key = file.stem[5:]
+    result[key] = json.loads(file.read_text(encoding="utf-8"))
+
+  dst.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+  print(f"[WRITE]: {dst.as_posix()}")
+
+
+if __name__ == "__main__":
+  merge_gamecfg_buff()
