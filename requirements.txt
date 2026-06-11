@@ -2,4 +2,4 @@ lupa==2.8
 azlassets==4.2.0
 UnityPy==1.10.18
 pydantic==2.13.4
-requests
+requests==2.27.1
