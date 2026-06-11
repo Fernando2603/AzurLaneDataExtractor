@@ -1,4 +1,5 @@
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -7,7 +8,7 @@ BUILD = Path(__file__).parent / "build"
 
 def merge_gamecfg_buff() -> None:
   src = BUILD / "gamecfg/buff"
-  dst = BUILD / "buff.json"
+  dst = BUILD / "gamecfg/buff.json"
 
   if not src.exists():
     return
@@ -23,6 +24,9 @@ def merge_gamecfg_buff() -> None:
 
   dst.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
   print(f"[WRITE]: {dst.as_posix()}")
+
+  shutil.rmtree(src)
+  print(f"[DELETE]: {src.as_posix()}")
 
 
 def update_version() -> None:
