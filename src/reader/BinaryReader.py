@@ -8,9 +8,14 @@ from ..serializer import encode_string
 class BinaryReader:
   __slots__ = ("length", "offset", "path", "position", "view")
 
-  def __init__(self, path: Path, offset: int = 0) -> None:
-    self.path = path
-    self.view = path.read_bytes()
+  def __init__(self, source: Path | bytes, offset: int = 0) -> None:
+    if isinstance(source, Path):
+      self.path = source
+      self.view = source.read_bytes()
+    else:
+      self.path = Path("")
+      self.view = source
+
     self.length = len(self.view)
     self.offset = offset
     self.position = 0

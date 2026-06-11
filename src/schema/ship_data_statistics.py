@@ -76,12 +76,15 @@ class ShipDataStatistics(SchemaModel):
 
     output: list[list[Vector2[int]]] = []
 
-    # opcodes \x4c is \x34 = 52 == TNEW
+    # opcodes by observing behaviour of the byte
+    # 0x4C == TSETM | A-1<BASE>[D&0xFFFFFFFF<NUM>] <- A (<- multres)
+    # 0x4D == TGET variant | ABC
+    # 0x57 == TSET variant? act more like insert(0x4C Address, index, end address)
     for x in reader.find_all(b"\x4c\xfb", start=0, end=reader.constant_position):
       reader.position = x
       reader.seek(2)
 
-      length = reader.read_int(tag=b"") - 1
+      length = reader.read_int(tag=b"") - 1 # A-1<BASE>
       output.append([result.pop() for _ in range(length)])
 
     return output

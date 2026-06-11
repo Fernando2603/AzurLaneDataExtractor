@@ -9,12 +9,13 @@ from .BinaryReader import BinaryReader
 
 
 class SchemaReader(BinaryReader):
-  __slots__ = ("cache", "constant_position")
+  __slots__ = ("cache", "constant_position", "instructions")
 
   def __init__(self, path: Path, offset: int = 0) -> None:
-    super().__init__(path=path, offset=offset)
+    super().__init__(source=path, offset=offset)
     self.cache: dict[Any, TypeAdapter[Any]] = {}
     self.constant_position = 0
+    self.instructions: list[bytes] = []
 
   def calculate_constant_position(self) -> None:
     self.position = 0
@@ -29,7 +30,7 @@ class SchemaReader(BinaryReader):
     _instruction_count = self.read_int(b"")
 
     if _instruction_count:
-      self.seek(4 * _instruction_count)
+      self.instructions = [self.read(4) for _ in range(_instruction_count)]
 
     # should be never appear on sharecfgdata, since its single file injection?
     # im not sure, obfuscated luajit is bit confusing
@@ -107,6 +108,69 @@ class SchemaReader(BinaryReader):
     length = self.read_int(tag=b"")
     self.seek(1)
     return length
+
+  def read_constant(self, position: int | None = None, length: int | None = None) -> list[Any]:
+    if position is None:
+      position = self.constant_position
+
+    if length is None:
+      length = self.length
+
+    prev_position = self.position
+    self.position = position
+    reader = BinaryReader(source=self.read(length))
+    self.position = prev_position
+
+    kgc: list[Any] = []
+
+    def get_table_constant() -> None | bool | int | float | str:
+      tag = reader.peek(1)
+
+      if tag == b"\x00":
+        return reader.read_nil()
+
+      if tag in b"\x01\x02":
+        return reader.read_bool()
+
+      if tag == b"\x03":
+        return reader.read_varint()
+
+      if tag == b"\x04":
+        return reader.read_float()
+
+      return reader.read_string()
+
+    while (tag := reader.peek(1)) != b"":
+      if tag == b"\x01":
+        is_array = reader.peek(2) == b"\x01\x00"
+        length = reader.read(4)[2] - 1 if is_array else reader.read(3)[1]
+
+        table: dict[Any, Any] = {}
+        array: list[Any] = []
+
+        for _ in range(length):
+          if is_array:
+            array.append(get_table_constant())
+            continue
+
+          key = get_table_constant()
+          value = get_table_constant()
+          table[key] = value
+
+        kgc.append(array if is_array else table)
+        continue
+
+      if tag in b"\x02\x03":
+        kgc.append(reader.read_varint())
+        continue
+
+      if tag == b"\x04":
+        kgc.append(reader.read_float())
+        continue
+
+      kgc.append(reader.read_string())
+
+    return kgc
 
   def convert_tag_to_types(self, tag: bytes) -> set[type]:
     if tag == b"\x00":

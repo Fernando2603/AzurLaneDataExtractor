@@ -18,14 +18,20 @@ for file in (Path(__file__).parent / "src/schema").glob("*.py"):
 def sharecfgdata(source: Path, output: Path) -> None:
   for name, function in SCHEMA.items():
     src = source / name
-    dst = (output / name).with_suffix(".json")
+    target = [src]
 
     if not src.exists():
       print(f"[SKIP]: {src.as_posix()} not found.")
       continue
 
-    function(src, dst)
-    print(f"[WRITE]: {dst.as_posix()}")
+    for i in range(1, 4):
+      if (x := src.with_name(f"{name}_{i}")).exists():
+        target.append(x)
+
+    for file in target:
+      dst = (output / file.name).with_suffix(".json")
+      function(file, dst)
+      print(f"[WRITE]: {dst.as_posix()}")
 
 
 if __name__ == "__main__":
