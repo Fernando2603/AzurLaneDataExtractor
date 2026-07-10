@@ -37,6 +37,10 @@ class SchemaReader(BinaryReader):
     if _upvalues_count:
       self.seek(2 * _upvalues_count)
 
+    if _knum:
+      for _ in range(_knum):
+        self.read_int(b"")
+
     # SchemaReader is not gonna work with op codes, that for next time
     # This intended for removing unused header to improve find and find_all
     self.constant_position = self.position
@@ -366,7 +370,7 @@ class SchemaReader(BinaryReader):
     try:
       result = self.get_value_by_type(expect)
 
-    except TagError as e:
+    except (TagError, ExceptionGroup) as e:
       if default is None:
         raise e
 
